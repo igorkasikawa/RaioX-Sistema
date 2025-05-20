@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raio-X do Sistema Nubank</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        :root {
+            --primary: #8a05be;
+            --primary-dark: #6b0494;
+            --secondary: #a347d5;
+            --light: #f5f5f7;
+            --dark: #333;
+            --gray: #666;
+            --white: #fff;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            background-color: var(--primary-dark);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        nav li {
+            padding: 1rem 0.5rem;
+        }
+        
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        h3 {
+            color: var(--primary-dark);
+            margin: 1.5rem 0 1rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .diagram {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem auto;
+            display: block;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+        }
+        
+        /* Estilos para os diagramas BPMN */
+        .bpmn-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-height: 300px;
+        }
+        
+        .bpmn-pool {
+            width: 100%;
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        
+        .bpmn-lane {
+            border-bottom: 1px dashed #999;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .bpmn-lane:last-child {
+            border-bottom: none;
+        }
+        
+        .bpmn-lane-title {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .bpmn-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-left: 120px;
+            position: relative;
+        }
+        
+        .bpmn-event {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            background-color: #fff;
+        }
+        
+        .bpmn-start-event {
+            border: 2px solid #4CAF50;
+        }
+        
+        .bpmn-end-event {
+            border: 2px solid #F44336;
+        }
+        
+        .bpmn-task {
+            width: 120px;
+            height: 80px;
+            border: 1px solid #2196F3;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            background-color: #E3F2FD;
+        }
+        
+        .bpmn-gateway {
+            width: 50px;
+            height: 50px;
+            transform: rotate(45deg);
+            border: 1px solid #FF9800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #FFF3E0;
+        }
+        
+        .bpmn-gateway-content {
+            transform: rotate(-45deg);
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .bpmn-arrow {
+            flex-grow: 1;
+            height: 2px;
+            background-color: #333;
+            position: relative;
+            margin: 0 10px;
+        }
+        
+        .bpmn-arrow::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #333;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        
+        /* Estilos para diagramas UML */
+        .uml-diagram {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .uml-class {
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin: 10px;
+            width: 200px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        
+        .uml-class-name {
+            background-color: #E8EAF6;
+            padding: 10px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+        
+        .uml-class-attributes, .uml-class-methods {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .uml-class-methods {
+            border-bottom: none;
+        }
+        
+        .uml-relationship {
+            position: relative;
+            height: 2px;
+            background-color: #333;
+            margin: 20px 0;
+        }
+        
+        .uml-relationship::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #333;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+        
+        .uml-relationship-label {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            padding: 0 5px;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav li {
+                padding: 0.5rem;
+            }
+            
+            section {
+                padding: 1.5rem;
+            }
+            
+            .uml-class {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Raio-X do Sistema Nubank</h1>
+        <p>Uma análise completa do sistema do banco digital Nubank, desde a modelagem até a implementação</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#introducao">Introdução</a></li>
+            <li><a href="#passo1">Passo 1</a></li>
+            <li><a href="#passo2">Passo 2</a></li>
+            <li><a href="#passo3">Passo 3</a></li>
+            <li><a href="#passo4">Passo 4</a></li>
+            <li><a href="#passo5">Passo 5</a></li>
+            <li><a href="#passo6">Passo 6</a></li>
+            <li><a href="#passo7">Passo 7</a></li>
+            <li><a href="#passo8">Passo 8</a></li>
+            <li><a href="#passo9">Passo 9</a></li>
+            <li><a href="#passo10">Passo 10</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <section id="introducao">
+            <h2>Introdução ao Sistema Nubank</h2>
+            <p>O Nubank é um dos maiores bancos digitais do mundo, fundado em 2013 no Brasil. Seu sistema revolucionou o mercado financeiro ao oferecer serviços bancários totalmente digitais, sem burocracia e com foco na experiência do usuário.</p>
+            <p>Nesta análise, vamos explorar os principais componentes do sistema Nubank, desde seus processos de negócio até sua arquitetura técnica, passando por aspectos de experiência do usuário e regras de negócio.</p>
+            <p>O objetivo é compreender como o Nubank conseguiu criar uma plataforma financeira digital inovadora que atende milhões de clientes com eficiência e segurança.</p>
+        </section>
+        
+        <section id="passo1">
+            <h2>Passo 1: Entendendo o Caminho Principal (Modelagem de Processo com BPMN)</h2>
+            <p>O processo principal do Nubank envolve o ciclo de vida do cliente, desde a aquisição até o uso contínuo dos produtos financeiros. Abaixo está representado o fluxo BPMN do processo de onboarding e uso do cartão de crédito, um dos principais produtos do Nubank:</p>
+            
+            <div class="diagram">
+                <div class="bpmn-diagram">
+                    <div class="bpmn-pool">
+                        <div class="bpmn-lane">
+                            <span class="bpmn-lane-title">Cliente</span>
+                            <div class="bpmn-flow">
+                                <div class="bpmn-event bpmn-start-event">Início</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Solicitar Cartão</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Fornecer Dados</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Receber Cartão</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Ativar Cartão</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Usar Cartão</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Pagar Fatura</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-event bpmn-end-event">Fim</div>
+                            </div>
+                        </div>
+                        <div class="bpmn-lane">
+                            <span class="bpmn-lane-title">Nubank</span>
+                            <div class="bpmn-flow">
+                                <div class="bpmn-task">Receber Solicitação</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Analisar Crédito</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-gateway">
+                                    <div class="bpmn-gateway-content">?</div>
+                                </div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Definir Limite</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Enviar Cartão</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Processar Transações</div>
+                                <div class="bpmn-arrow"></div>
+                                <div class="bpmn-task">Gerar Fatura</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3>Descrição do Fluxo do Processo:</h3>
+            <ol>
+                <li><strong>Solicitação do Cartão:</strong> O cliente baixa o aplicativo Nubank e solicita o cartão de crédito, fornecendo dados pessoais e documentos.</li>
+                <li><strong>Análise de Crédito:</strong> O sistema Nubank realiza análise automatizada de crédito usando algoritmos proprietários e consultas a bureaus de crédito.</li>
+                <li><strong>Aprovação e Definição de Limite:</strong> Com base na análise, o sistema aprova ou rejeita a solicitação e define o limite de crédito inicial.</li>
+                <li><strong>Envio do Cartão:</strong> Para solicitações aprovadas, o sistema gera ordem de produção e envio do cartão físico.</li>
+                <li><strong>Ativação do Cartão:</strong> O cliente recebe o cartão e o ativa pelo aplicativo, gerando um cartão virtual imediatamente disponível.</li>
+                <li><strong>Uso do Cartão:</strong> O cliente realiza compras, que são autorizadas em tempo real pelo sistema de processamento de transações.</li>
+                <li><strong>Geração de Fatura:</strong> Mensalmente, o sistema gera a fatura com todas as transações do período.</li>
+                <li><strong>Pagamento da Fatura:</strong> O cliente visualiza e paga a fatura pelo aplicativo ou por boleto.</li>
+                <li><strong>Gestão do Cartão:</strong> O cliente pode bloquear/desbloquear o cartão, ajustar limites, contestar compras e solicitar outros serviços pelo aplicativo.</li>
+            </ol>
+        </section>
+        
+        <section id="passo2">
+            <h2>Passo 2: Arrumando a Casa (Organização de Dados do Processo)</h2>
+            <h3>Principais Entidades de Dados:</h3>
+            <ul>
+                <li><strong>Cliente:</strong> Armazena informações pessoais, dados de contato e histórico de relacionamento.</li>
+                <li><strong>Conta:</strong> Representa a conta digital do cliente, com saldo e histórico de transações.</li>
+                <li><strong>Cartão:</strong> Contém informações sobre o cartão físico e virtual, limites e status.</li>
+                <li><strong>Transação:</strong> Registra todas as operações financeiras realizadas pelo cliente.</li>
+                <li><strong>Fatura:</strong> Agrupa transações de cartão de crédito em ciclos de faturamento.</li>
+                <li><strong>Produto:</strong> Representa os diferentes produtos oferecidos (cartão, conta, empréstimo, etc.).</li>
+                <li><strong>Notificação:</strong> Gerencia as comunicações enviadas ao cliente.</li>
+                <li><strong>Dispositivo:</strong> Armazena informações sobre os dispositivos usados para acessar a conta.</li>
+            </ul>
+            
+            <div class="diagram">
+                <div class="uml-diagram">
+                    <div class="uml-class">
+                        <div class="uml-class-name">Cliente</div>
+                        <div class="uml-class-attributes">
+                            - id: UUID<br>
+                            - nome: String<br>
+                            - cpf: String<br>
+                            - email: String<br>
+                            - telefone: String<br>
+                            - dataNascimento: Date
+                        </div>
+                        <div class="uml-class-methods">
+                            + cadastrar()<br>
+                            + atualizar()<br>
+                            + verificarIdentidade()
+                        </div>
+                    </div>
+                    
+                    <div class="uml-class">
+                        <div class="uml-class-name">Conta</div>
+                        <div class="uml-class-attributes">
+                            - id: UUID<br>
+                            - clienteId: UUID<br>
+                            - saldo: Decimal<br>
+                            - status: Enum<br>
+                            - dataCriacao: Date
+                        </div>
+                        <div class="uml-class-methods">
+                            + depositar()<br>
+                            + sacar()<br>
+                            + transferir()<br>
+                            + consultarSaldo()
+                        </div>
+                    </div>
+                    
+                    <div class="uml-class">
+                        <div class="uml-class-name">Cartão</div>
+                        <div class="uml-class-attributes">
+                            - id: UUID<br>
+                            - clienteId: UUID<br>
+                            - numero: String<br>
+                            - limite: Decimal<br>
+                            - status: Enum<br>
+                            - validade: Date
+                        </div>
+                        <div class="uml-class-methods">
+                            + ativar()<br>
+                            + bloquear()<br>
+                            + ajustarLimite()<br>
+                            + gerarVirtual()
+                        </div>
+                    </div>
+                    
+                    <div class="uml-class">
+                        <div class="uml-class-name">Transação</div>
+                        <div class="uml-class-attributes">
+                            - id: UUID<br>
+                            - cartaoId: UUID<br>
+                            - valor: Decimal<br>
+                            - estabelecimento: String<br>
+                            - data: DateTime<br>
+                            - status: Enum
+                        </div>
+                        <div class="uml-class-methods">
+                            + autorizar()<br>
+                            + cancelar()<br>
+                            + contestar()
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p>O modelo de dados do Nubank é projetado para alta performance e escalabilidade, utilizando bancos de dados relacionais para dados transacionais críticos e bancos NoSQL para dados de alta volumetria como logs e eventos.</p>
+        </section>
+        
+        <section id="passo3">
+            <h2>Passo 3: Quem Faz o Quê? (Autonomia)</h2>
+            <h3>Atores e Papéis no Sistema Nubank:</h3>
+            
+            <table>
+                <tr>
+                    <th>Ator/Papel</th>
+                    <th>Responsabilidades</th>
+                    <th>Nível de Autonomia</th>
+                </tr>
+                <tr>
+                    <td>Cliente</td>
+                    <td>Gerenciar conta, realizar transações, solicitar produtos, pagar faturas</td>
+                    <td>Alta - controle total sobre sua conta via aplicativo</td>
+                </tr>
+                <tr>
+                    <td>Atendente de Suporte</td>
+                    <td>Resolver problemas, esclarecer dúvidas, registrar solicitações</td>
+                    <td>Média - pode resolver problemas comuns, mas precisa escalar casos complexos</td>
+                </tr>
+                <tr>
+                    <td>Analista de Crédito</td>
+                    <td>Revisar casos especiais de análise de crédito, ajustar modelos</td>
+                    <td>Média-Alta - pode tomar decisões sobre casos não padrão</td>
+                </tr>
+                <tr>
+                    <td>Administrador de Sistema</td>
+                    <td>Gerenciar infraestrutura, monitorar desempenho, garantir disponibilidade</td>
+                    <td>Alta - controle sobre configurações técnicas do sistema</td>
+                </tr>
+                <tr>
+                    <td>Engenheiro de Dados</td>
+                    <td>Manter pipelines de dados, garantir integridade e disponibilidade dos dados</td>
+                    <td>Alta - autonomia para implementar soluções de dados</td>
+                </tr>
+                <tr>
+                    <td>Cientista de Dados</td>
+                    <td>Desenvolver e aprimorar modelos de análise de crédito e detecção de fraudes</td>
+                    <td>Alta - liberdade para experimentar e implementar novos modelos</td>
+                </tr>
+                <tr>
+                    <td>Desenvolvedor</td>
+                    <td>Implementar novas funcionalidades, corrigir bugs, melhorar o sistema</td>
+                    <td>Alta - autonomia para propor e implementar soluções técnicas</td>
+                </tr>
+                <tr>
+                    <td>Gerente de Produto</td>
+                    <td>Definir roadmap, priorizar funcionalidades, analisar métricas</td>
+                    <td>Alta - poder de decisão sobre evolução do produto</td>
+                </tr>
+            </table>
+            
+            <p>O Nubank adota uma cultura de alta autonomia para seus colaboradores, organizados em squads multidisciplinares responsáveis por diferentes áreas do produto. Essa estrutura permite decisões rápidas e desenvolvimento ágil de novas funcionalidades.</p>
+        </section>
+        
+        <section id="passo4">
+            <h2>Passo 4: Choveram Ideias! (Iniciativa)</h2>
+            <h3>Ideias de Melhorias e Novas Funcionalidades:</h3>
+            <ul>
+                <li><strong>Assistente Financeiro com IA:</strong> Implementar um assistente virtual baseado em IA que analisa o comportamento financeiro do cliente e oferece dicas personalizadas de economia e investimento.</li>
+                <li><strong>Metas Financeiras Colaborativas:</strong> Permitir que familiares ou amigos criem metas financeiras compartilhadas, com contribuições individuais e acompanhamento coletivo.</li>
+                <li><strong>Cartão Virtual Temporário:</strong> Criar cartões virtuais com validade e limite específicos para compras online mais seguras.</li>
+                <li><strong>Integração com Plataformas de Cashback:</strong> Conectar o sistema a plataformas de cashback para oferecer retorno automático em compras selecionadas.</li>
+                <li><strong>Análise Preditiva de Gastos:</strong> Implementar sistema que prevê gastos futuros com base no histórico e alerta o cliente sobre possíveis problemas de fluxo de caixa.</li>
+                <li><strong>Marketplace Financeiro:</strong> Criar um ecossistema onde parceiros podem oferecer produtos financeiros complementares integrados à plataforma Nubank.</li>
+                <li><strong>Autenticação Biométrica Avançada:</strong> Implementar reconhecimento facial e de voz para aumentar a segurança nas transações de alto valor.</li>
+                <li><strong>Programa de Fidelidade Personalizado:</strong> Desenvolver um sistema de recompensas baseado no perfil e comportamento individual de cada cliente.</li>
+            </ul>
+        </section>
+        
+        <section id="passo5">
+    <h2>Passo 5: É Fácil de Usar? (User Experience - UX)</h2>
+    <h3>Análise da UX do Nubank:</h3>
+    
+    <h4>Pontos Positivos:</h4>
+    <ul>
+        <li>Interface minimalista e intuitiva, com uso eficiente do roxo como cor de marca.</li>
+        <li>Fluxos de navegação simplificados, com poucos passos para realizar tarefas comuns.</li>
+        <li>Feedback imediato para ações do usuário, como notificações push para transações.</li>
+        <li>Linguagem clara e amigável, evitando jargões financeiros complexos.</li>
+        <li>Processo de onboarding simplificado, com verificação de identidade digital.</li>
+        <li>Visualização clara do saldo e transações recentes na tela inicial.</li>
+    </ul>
+    
+    <h4>Pontos Negativos:</h4>
+    <ul>
+        <li>Algumas funcionalidades avançadas podem estar "escondidas" em menus secundários.</li>
+        <li>Limitações na personalização da interface conforme preferências do usuário.</li>
+        <li>Falta de tutoriais interativos para novos recursos adicionados ao aplicativo.</li>
+        <li>Experiência fragmentada entre diferentes produtos (cartão, conta, investimentos).</li>
+    </ul>
+    
+    <h3>Propostas de Melhoria de UX:</h3>
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin: 30px 0;">
+        <!-- Dashboard Unificado -->
+        <div style="flex: 1; min-width: 300px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background-color: #f9f9f9;">
+            <svg width="100%" height="220" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Fundo do celular -->
+                <rect x="0" y="0" width="300" height="220" rx="10" fill="#f8f8f8" />
+                
+                <!-- Cabeçalho -->
+                <rect x="0" y="0" width="300" height="40" rx="10" fill="#f0f0f0" />
+                <circle cx="20" cy="20" r="10" fill="#8a05be" />
+                <rect x="200" y="15" width="30" height="10" rx="5" fill="#ddd" />
+                <rect x="240" y="15" width="30" height="10" rx="5" fill="#ddd" />
+                <rect x="280" y="15" width="10" height="10" rx="5" fill="#ddd" />
+                
+                <!-- Card principal -->
+                <rect x="10" y="50" width="280" height="70" rx="10" fill="white" stroke="#ddd" />
+                <text x="20" y="70" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Visão Geral</text>
+                <rect x="20" y="80" width="200" height="8" rx="4" fill="#8a05be" />
+                <rect x="20" y="100" width="120" height="8" rx="4" fill="#ddd" />
+                
+                <!-- Cards secundários -->
+                <rect x="10" y="130" width="135" height="80" rx="10" fill="white" stroke="#ddd" />
+                <circle cx="30" cy="150" r="10" fill="#8a05be" />
+                <rect x="50" y="145" width="80" height="6" rx="3" fill="#ddd" />
+                <rect x="50" y="155" width="60" height="6" rx="3" fill="#ddd" />
+                
+                <rect x="155" y="130" width="135" height="80" rx="10" fill="white" stroke="#ddd" />
+                <circle cx="175" cy="150" r="10" fill="#a347d5" />
+                <rect x="195" y="145" width="80" height="6" rx="3" fill="#ddd" />
+                <rect x="195" y="155" width="60" height="6" rx="3" fill="#ddd" />
+            </svg>
+            <h4>Dashboard Unificado</h4>
+            <p>Visão consolidada de todos os produtos e serviços em uma única tela, com cards personalizáveis.</p>
+        </div>
+        
+        <!-- Assistente Financeiro -->
+        <div style="flex: 1; min-width: 300px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background-color: #f9f9f9;">
+            <svg width="100%" height="220" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Fundo do celular -->
+                <rect x="0" y="0" width="300" height="220" rx="10" fill="#f8f8f8" />
+                
+                <!-- Cabeçalho -->
+                <rect x="0" y="0" width="300" height="40" rx="10" fill="#f0f0f0" />
+                <circle cx="20" cy="20" r="10" fill="#8a05be" />
+                <text x="40" y="25" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Assistente</text>
+                <rect x="260" y="15" width="30" height="10" rx="5" fill="#ddd" />
+                
+                <!-- Área de chat -->
+                <rect x="10" y="50" width="280" height="120" rx="10" fill="white" stroke="#ddd" />
+                
+                <!-- Mensagens -->
+                <rect x="20" y="60" width="180" height="30" rx="15" fill="#f0f0f0" />
+                <rect x="100" y="100" width="180" height="30" rx="15" fill="#8a05be" />
+                <rect x="20" y="140" width="200" height="30" rx="15" fill="#f0f0f0" />
+                
+                <!-- Campo de entrada -->
+                <rect x="10" y="180" width="230" height="30" rx="15" fill="white" stroke="#ddd" />
+                <circle cx="260" cy="195" r="15" fill="#8a05be" />
+                <circle cx="260" cy="195" r="5" fill="white" />
+            </svg>
+            <h4>Assistente Financeiro</h4>
+            <p>Interface conversacional para interagir com o assistente de IA para dúvidas e recomendações.</p>
+        </div>
+        
+        <!-- Gestão de Metas -->
+        <div style="flex: 1; min-width: 300px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background-color: #f9f9f9;">
+            <svg width="100%" height="220" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+                <!-- Fundo do celular -->
+                <rect x="0" y="0" width="300" height="220" rx="10" fill="#f8f8f8" />
+                
+                <!-- Cabeçalho -->
+                <rect x="0" y="0" width="300" height="40" rx="10" fill="#f0f0f0" />
+                <circle cx="20" cy="20" r="10" fill="#8a05be" />
+                <text x="40" y="25" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Metas</text>
+                <rect x="240" y="15" width="20" height="10" rx="5" fill="#ddd" />
+                <rect x="270" y="15" width="20" height="10" rx="5" fill="#ddd" />
+                
+                <!-- Meta 1 -->
+                <rect x="10" y="50" width="280" height="70" rx="10" fill="white" stroke="#ddd" />
+                <text x="20" y="70" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Viagem para Europa</text>
+                <rect x="20" y="80" width="260" height="15" rx="7.5" fill="#f0f0f0" />
+                <rect x="20" y="80" width="170" height="15" rx="7.5" fill="#8a05be" />
+                <text x="20" y="110" font-family="Arial" font-size="10" fill="#666">R$ 6.500 / R$ 10.000</text>
+                <text x="250" y="110" font-family="Arial" font-size="10" fill="#666">65%</text>
+                
+                <!-- Meta 2 -->
+                <rect x="10" y="130" width="280" height="70" rx="10" fill="white" stroke="#ddd" />
+                <text x="20" y="150" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Novo Notebook</text>
+                <rect x="20" y="160" width="260" height="15" rx="7.5" fill="#f0f0f0" />
+                <rect x="20" y="160" width="80" height="15" rx="7.5" fill="#a347d5" />
+                <text x="20" y="190" font-family="Arial" font-size="10" fill="#666">R$ 1.500 / R$ 5.000</text>
+                <text x="250" y="190" font-family="Arial" font-size="10" fill="#666">30%</text>
+            </svg>
+            <h4>Gestão de Metas</h4>
+            <p>Interface para criação e acompanhamento de metas financeiras individuais e colaborativas.</p>
+        </div>
+    </div>
+</section>
+        
+        <section id="passo6">
+            <h2>Passo 6: Falando com Vizinhos (Conectividade e Interoperabilidade)</h2>
+            <h3>Sistemas Externos e Integrações:</h3>
+            
+            <table>
+                <tr>
+                    <th>Sistema Externo</th>
+                    <th>Tipo de Integração</th>
+                    <th>Informações Trocadas</th>
+                </tr>
+                <tr>
+                    <td>Bureaus de Crédito (Serasa, SPC)</td>
+                    <td>API REST</td>
+                    <td>Consulta de score de crédito, histórico financeiro, restrições</td>
+                </tr>
+                <tr>
+                    <td>Sistema de Pagamentos Brasileiro (SPB)</td>
+                    <td>API proprietária/WebService</td>
+                    <td>Transferências bancárias, pagamentos de boletos, PIX</td>
+                </tr>
+                <tr>
+                    <td>Bandeiras de Cartão (Mastercard)</td>
+                    <td>API REST/SOAP</td>
+                    <td>Autorização de transações, contestações, programas de benefícios</td>
+                </tr>
+                <tr>
+                    <td>Banco Central do Brasil</td>
+                    <td>API REST/SFTP</td>
+                    <td>Relatórios regulatórios, informações de compliance</td>
+                </tr>
+                <tr>
+                    <td>Receita Federal</td>
+                    <td>API REST/WebService</td>
+                    <td>Validação de CPF/CNPJ, informações cadastrais</td>
+                </tr>
+                <tr>
+                    <td>Empresas de Logística</td>
+                    <td>API REST</td>
+                    <td>Rastreamento de entrega de cartões, status de envio</td>
+                </tr>
+                <tr>
+                    <td>Plataformas de Open Banking</td>
+                    <td>API REST (OAuth 2.0)</td>
+                    <td>Compartilhamento de dados financeiros, iniciação de pagamentos</td>
+                </tr>
+                <tr>
+                    <td>Sistemas de Detecção de Fraude</td>
+                    <td>API REST/Streaming</td>
+                    <td>Análise de risco de transações, alertas de fraude</td>
+                </tr>
+            </table>
+            
+            <h3>Necessidades de APIs:</h3>
+            <p>O Nubank mantém uma arquitetura de microserviços, onde cada componente do sistema expõe APIs internas para comunicação. Externamente, o banco digital oferece:</p>
+            <ul>
+                <li><strong>APIs de Open Banking:</strong> Permitem que terceiros autorizados acessem dados financeiros dos clientes que deram consentimento.</li>
+                <li><strong>APIs de Parceiros:</strong> Integram serviços de parceiros comerciais ao ecossistema Nubank.</li>
+                <li><strong>APIs Públicas:</strong> Disponibilizam informações não sensíveis como localização de ATMs e taxas de serviços.</li>
+            </ul>
+        </section>
+        
+        <section id="passo7">
+            <h2>Passo 7: Nossos Desenhos Técnicos (Técnicas de Modelagem - Ferramentas e UML)</h2>
+            
+            <h3>Diagrama de Casos de Uso:</h3>
+            <div class="diagram">
+                <svg width="100%" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Sistema -->
+                    <rect x="200" y="50" width="400" height="350" rx="10" fill="#f8f8f8" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="30" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Sistema Nubank</text>
+                    
+                    <!-- Casos de Uso -->
+                    <ellipse cx="400" cy="100" rx="120" ry="30" fill="#E8EAF6" stroke="#333"/>
+                    <text x="400" y="105" font-family="Arial" font-size="14" text-anchor="middle">Gerenciar Conta</text>
+                    
+                    <ellipse cx="400" cy="160" rx="120" ry="30" fill="#E8EAF6" stroke="#333"/>
+                    <text x="400" y="165" font-family="Arial" font-size="14" text-anchor="middle">Solicitar Cartão</text>
+                    
+                    <ellipse cx="400" cy="220" rx="120" ry="30" fill="#E8EAF6" stroke="#333"/>
+                    <text x="400" y="225" font-family="Arial" font-size="14" text-anchor="middle">Realizar Pagamentos</text>
+                    
+                    <ellipse cx="400" cy="280" rx="120" ry="30" fill="#E8EAF6" stroke="#333"/>
+                    <text x="400" y="285" font-family="Arial" font-size="14" text-anchor="middle">Visualizar Fatura</text>
+                    
+                    <ellipse cx="400" cy="340" rx="120" ry="30" fill="#E8EAF6" stroke="#333"/>
+                    <text x="400" y="345" font-family="Arial" font-size="14" text-anchor="middle">Contestar Transação</text>
+                    
+                    <!-- Atores -->
+                    <!-- Cliente -->
+                    <circle cx="100" cy="150" r="15" fill="#333"/>
+                    <line x1="100" y1="165" x2="100" y2="200" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="175" x2="70" y2="190" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="175" x2="130" y2="190" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="200" x2="70" y2="240" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="200" x2="130" y2="240" stroke="#333" stroke-width="2"/>
+                    <text x="100" y="260" font-family="Arial" font-size="14" text-anchor="middle">Cliente</text>
+                    
+                    <!-- Sistema -->
+                    <circle cx="700" cy="150" r="15" fill="#333"/>
+                    <line x1="700" y1="165" x2="700" y2="200" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="175" x2="670" y2="190" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="175" x2="730" y2="190" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="200" x2="670" y2="240" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="200" x2="730" y2="240" stroke="#333" stroke-width="2"/>
+                    <text x="700" y="260" font-family="Arial" font-size="14" text-anchor="middle">Sistema</text>
+                    
+                    <!-- Suporte -->
+                    <circle cx="700" cy="350" r="15" fill="#333"/>
+                    <line x1="700" y1="365" x2="700" y2="400" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="375" x2="670" y2="390" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="375" x2="730" y2="390" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="400" x2="670" y2="440" stroke="#333" stroke-width="2"/>
+                    <line x1="700" y1="400" x2="730" y2="440" stroke="#333" stroke-width="2"/>
+                    <text x="700" y="460" font-family="Arial" font-size="14" text-anchor="middle">Suporte</text>
+                    
+                    <!-- Conexões -->
+                    <line x1="120" y1="150" x2="280" y2="100" stroke="#333" stroke-width="1.5"/>
+                    <line x1="120" y1="150" x2="280" y2="160" stroke="#333" stroke-width="1.5"/>
+                    <line x1="120" y1="150" x2="280" y2="220" stroke="#333" stroke-width="1.5"/>
+                    <line x1="120" y1="150" x2="280" y2="280" stroke="#333" stroke-width="1.5"/>
+                    <line x1="120" y1="150" x2="280" y2="340" stroke="#333" stroke-width="1.5"/>
+                    
+                    <line x1="680" y1="150" x2="520" y2="100" stroke="#333" stroke-width="1.5"/>
+                    <line x1="680" y1="150" x2="520" y2="160" stroke="#333" stroke-width="1.5"/>
+                    
+                    <line x1="680" y1="350" x2="520" y2="340" stroke="#333" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <p>O diagrama acima representa as principais funcionalidades disponíveis para os clientes do Nubank, incluindo gerenciamento de conta, cartão de crédito, investimentos e atendimento ao cliente.</p>
+            
+            <h3>Diagrama de Classes Detalhado:</h3>
+            <div class="diagram">
+                <svg width="100%" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Cliente -->
+                    <rect x="50" y="50" width="200" height="200" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    <rect x="50" y="50" width="200" height="40" rx="5" fill="#E8EAF6" stroke="#333" stroke-width="2"/>
+                    <text x="150" y="75" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Cliente</text>
+                    
+                    <line x1="50" y1="90" x2="250" y2="90" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="60" y="95" width="180" height="100">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            - id: UUID<br/>
+                            - nome: String<br/>
+                            - cpf: String<br/>
+                            - email: String<br/>
+                            - telefone: String<br/>
+                            - dataNascimento: Date<br/>
+                            - endereço: Endereço<br/>
+                            - score: Integer
+                        </div>
+                    </foreignObject>
+                    
+                    <line x1="50" y1="190" x2="250" y2="190" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="60" y="195" width="180" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            + cadastrar()<br/>
+                            + atualizar()<br/>
+                            + verificarIdentidade()<br/>
+                            + calcularScore()
+                        </div>
+                    </foreignObject>
+                    
+                    <!-- Conta -->
+                    <rect x="300" y="50" width="200" height="200" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    <rect x="300" y="50" width="200" height="40" rx="5" fill="#E8EAF6" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="75" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Conta</text>
+                    
+                    <line x1="300" y1="90" x2="500" y2="90" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="310" y="95" width="180" height="100">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            - id: UUID<br/>
+                            - clienteId: UUID<br/>
+                            - saldo: Decimal<br/>
+                            - status: Enum<br/>
+                            - dataCriacao: Date<br/>
+                            - rendimento: Decimal
+                        </div>
+                    </foreignObject>
+                    
+                    <line x1="300" y1="190" x2="500" y2="190" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="310" y="195" width="180" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            + depositar()<br/>
+                            + sacar()<br/>
+                            + transferir()<br/>
+                            + consultarSaldo()<br/>
+                            + calcularRendimento()
+                        </div>
+                    </foreignObject>
+                    
+                    <!-- Cartão -->
+                    <rect x="550" y="50" width="200" height="200" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    <rect x="550" y="50" width="200" height="40" rx="5" fill="#E8EAF6" stroke="#333" stroke-width="2"/>
+                    <text x="650" y="75" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Cartão</text>
+                    
+                    <line x1="550" y1="90" x2="750" y2="90" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="560" y="95" width="180" height="100">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            - id: UUID<br/>
+                            - clienteId: UUID<br/>
+                            - numero: String<br/>
+                            - limite: Decimal<br/>
+                            - status: Enum<br/>
+                            - validade: Date<br/>
+                            - tipo: Enum<br/>
+                            - cvv: String
+                        </div>
+                    </foreignObject>
+                    
+                    <line x1="550" y1="190" x2="750" y2="190" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="560" y="195" width="180" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            + ativar()<br/>
+                            + bloquear()<br/>
+                            + ajustarLimite()<br/>
+                            + gerarVirtual()<br/>
+                            + autorizarCompra()
+                        </div>
+                    </foreignObject>
+                    
+                    <!-- Transação -->
+                    <rect x="50" y="300" width="200" height="200" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    <rect x="50" y="300" width="200" height="40" rx="5" fill="#E8EAF6" stroke="#333" stroke-width="2"/>
+                    <text x="150" y="325" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Transação</text>
+                    
+                    <line x1="50" y1="340" x2="250" y2="340" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="60" y="345" width="180" height="100">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            - id: UUID<br/>
+                            - cartaoId: UUID<br/>
+                            - valor: Decimal<br/>
+                            - estabelecimento: String<br/>
+                            - data: DateTime<br/>
+                            - status: Enum<br/>
+                            - categoria: String<br/>
+                            - parcelas: Integer
+                        </div>
+                    </foreignObject>
+                    
+                    <line x1="50" y1="440" x2="250" y2="440" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="60" y="445" width="180" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            + autorizar()<br/>
+                            + cancelar()<br/>
+                            + contestar()<br/>
+                            + parcelar()
+                        </div>
+                    </foreignObject>
+                    
+                    <!-- Fatura -->
+                    <rect x="300" y="300" width="200" height="200" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    <rect x="300" y="300" width="200" height="40" rx="5" fill="#E8EAF6" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="325" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Fatura</text>
+                    
+                    <line x1="300" y1="340" x2="500" y2="340" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="310" y="345" width="180" height="100">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            - id: UUID<br/>
+                            - cartaoId: UUID<br/>
+                            - dataFechamento: Date<br/>
+                            - dataVencimento: Date<br/>
+                            - valorTotal: Decimal<br/>
+                            - status: Enum
+                        </div>
+                    </foreignObject>
+                    
+                    <line x1="300" y1="440" x2="500" y2="440" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="310" y="445" width="180" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            + gerar()<br/>
+                            + pagar()<br/>
+                            + parcelar()<br/>
+                            + enviar()
+                        </div>
+                    </foreignObject>
+                    
+                    <!-- Notificação -->
+                    <rect x="550" y="300" width="200" height="200" rx="5" fill="#fff" stroke="#333" stroke-width="2"/>
+                    <rect x="550" y="300" width="200" height="40" rx="5" fill="#E8EAF6" stroke="#333" stroke-width="2"/>
+                    <text x="650" y="325" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Notificação</text>
+                    
+                    <line x1="550" y1="340" x2="750" y2="340" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="560" y="345" width="180" height="100">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            - id: UUID<br/>
+                            - clienteId: UUID<br/>
+                            - tipo: Enum<br/>
+                            - conteúdo: String<br/>
+                            - dataEnvio: DateTime<br/>
+                            - status: Enum
+                        </div>
+                    </foreignObject>
+                    
+                    <line x1="550" y1="440" x2="750" y2="440" stroke="#333" stroke-width="1"/>
+                    <foreignObject x="560" y="445" width="180" height="50">
+                        <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 12px; line-height: 1.5;">
+                            + enviar()<br/>
+                            + marcarComoLida()<br/>
+                            + cancelar()
+                        </div>
+                    </foreignObject>
+                    
+                    <!-- Relacionamentos -->
+                    <line x1="150" y1="250" x2="400" y2="300" stroke="#333" stroke-width="1.5" stroke-dasharray="5,5"/>
+                    <polygon points="400,300 390,290 395,285" fill="#333"/>
+                    <text x="250" y="280" font-family="Arial" font-size="12">1</text>
+                    <text x="390" y="295" font-family="Arial" font-size="12">0..*</text>
+                    
+                    <line x1="250" y1="150" x2="300" y2="150" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="300,150 290,145 290,155" fill="#333"/>
+                    <text x="260" y="140" font-family="Arial" font-size="12">1</text>
+                    <text x="290" y="140" font-family="Arial" font-size="12">1..*</text>
+                    
+                    <line x1="500" y1="150" x2="550" y2="150" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="550,150 540,145 540,155" fill="#333"/>
+                    <text x="510" y="140" font-family="Arial" font-size="12">1</text>
+                    <text x="540" y="140" font-family="Arial" font-size="12">0..*</text>
+                    
+                    <line x1="650" y1="250" x2="400" y2="300" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="400,300 410,295 405,290" fill="#333"/>
+                    <text x="550" y="280" font-family="Arial" font-size="12">1</text>
+                    <text x="410" y="295" font-family="Arial" font-size="12">0..*</text>
+                    
+                    <line x1="150" y1="300" x2="150" y2="250" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="150,250 145,260 155,260" fill="#333"/>
+                    <text x="160" y="280" font-family="Arial" font-size="12">0..*</text>
+                    <text x="160" y="250" font-family="Arial" font-size="12">1</text>
+                </svg>
+            </div>
+            <p>Este diagrama detalha as principais entidades do sistema Nubank e seus relacionamentos, incluindo as classes Cliente, Conta, Cartão, Transação, Fatura e Notificação.</p>
+            
+            <h3>Diagrama de Atividades - Processo de Contestação de Compra:</h3>
+            <div class="diagram">
+                <svg width="100%" height="700" viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Início -->
+                    <circle cx="400" cy="30" r="20" fill="#4CAF50"/>
+                    
+                    <!-- Fluxo inicial -->
+                    <line x1="400" y1="50" x2="400" y2="80" stroke="#333" stroke-width="2"/>
+                    
+                    <!-- Atividade 1 -->
+                    <rect x="300" y="80" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="110" font-family="Arial" font-size="14" text-anchor="middle">Cliente identifica transação não reconhecida</text>
+                    
+                    <!-- Fluxo 1-2 -->
+                    <line x1="400" y1="130" x2="400" y2="160" stroke="#333" stroke-width="2"/>
+                    <polygon points="400,160 395,150 405,150" fill="#333"/>
+                    
+                    <!-- Atividade 2 -->
+                    <rect x="300" y="160" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="190" font-family="Arial" font-size="14" text-anchor="middle">Cliente inicia contestação pelo app</text>
+                    
+                    <!-- Fluxo 2-3 -->
+                    <line x1="400" y1="210" x2="400" y2="240" stroke="#333" stroke-width="2"/>
+                    <polygon points="400,240 395,230 405,230" fill="#333"/>
+                    
+                    <!-- Atividade 3 -->
+                    <rect x="300" y="240" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="270" font-family="Arial" font-size="14" text-anchor="middle">Sistema registra contestação</text>
+                    
+                    <!-- Fluxo 3-4 -->
+                    <line x1="400" y1="290" x2="400" y2="320" stroke="#333" stroke-width="2"/>
+                    <polygon points="400,320 395,310 405,310" fill="#333"/>
+                    
+                    <!-- Decisão -->
+                    <polygon points="400,320 450,370 400,420 350,370" fill="#FFF3E0" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="375" font-family="Arial" font-size="14" text-anchor="middle">Tipo?</text>
+                    
+                    <!-- Fluxo Decisão - Fraude -->
+                    <line x1="350" y1="370" x2="200" y2="370" stroke="#333" stroke-width="2"/>
+                    <polygon points="200,370 210,365 210,375" fill="#333"/>
+                    <text x="270" y="360" font-family="Arial" font-size="12">Fraude</text>
+                    
+                    <!-- Fluxo Decisão - Cobrança indevida -->
+                    <line x1="450" y1="370" x2="600" y2="370" stroke="#333" stroke-width="2"/>
+                    <polygon points="600,370 590,365 590,375" fill="#333"/>
+                    <text x="525" y="360" font-family="Arial" font-size="12">Cobrança indevida</text>
+                    
+                    <!-- Atividade Fraude 1 -->
+                    <rect x="100" y="400" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="200" y="430" font-family="Arial" font-size="14" text-anchor="middle">Bloquear cartão</text>
+                    
+                    <!-- Atividade Cobrança 1 -->
+                    <rect x="500" y="400" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="600" y="430" font-family="Arial" font-size="14" text-anchor="middle">Contatar estabelecimento</text>
+                    
+                    <!-- Fluxo Fraude 1-2 -->
+                    <line x1="200" y1="450" x2="200" y2="480" stroke="#333" stroke-width="2"/>
+                    <polygon points="200,480 195,470 205,470" fill="#333"/>
+                    
+                    <!-- Atividade Fraude 2 -->
+                    <rect x="100" y="480" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="200" y="510" font-family="Arial" font-size="14" text-anchor="middle">Emitir novo cartão</text>
+                    
+                    <!-- Junção dos fluxos -->
+                    <line x1="200" y1="530" x2="200" y2="560" stroke="#333" stroke-width="2"/>
+                    <line x1="600" y1="450" x2="600" y2="560" stroke="#333" stroke-width="2"/>
+                    <line x1="200" y1="560" x2="400" y2="560" stroke="#333" stroke-width="2"/>
+                    <line x1="600" y1="560" x2="400" y2="560" stroke="#333" stroke-width="2"/>
+                    <polygon points="400,560 390,555 390,565" fill="#333"/>
+                    
+                    <!-- Atividade Análise -->
+                    <rect x="300" y="560" width="200" height="50" rx="10" fill="#E3F2FD" stroke="#333" stroke-width="2"/>
+                    <text x="400" y="590" font-family="Arial" font-size="14" text-anchor="middle">Analisar evidências</text>
+                    
+                    <!-- Fluxo para decisão final -->
+                    <line x1="400" y1="610" x2="400" y2="640" stroke="#333" stroke-width="2"/>
+                    <polygon points="400,640 395,630 405,630" fill="#333"/>
+                    
+                    <!-- Fim -->
+                    <circle cx="400" cy="670" r="20" fill="#F44336" stroke="#333" stroke-width="3"/>
+                </svg>
+            </div>
+            <p>O diagrama acima detalha o fluxo de atividades quando um cliente contesta uma transação no cartão de crédito, desde o registro da contestação até a resolução final.</p>
+            
+            <h3>Diagrama de Sequência - Processo de Pagamento:</h3>
+            <div class="diagram">
+                <svg width="100%" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Objetos -->
+                    <rect x="50" y="50" width="120" height="40" fill="#E8EAF6" stroke="#333"/>
+                    <text x="110" y="75" font-family="Arial" font-size="14" text-anchor="middle">Cliente</text>
+                    
+                    <rect x="250" y="50" width="120" height="40" fill="#E8EAF6" stroke="#333"/>
+                    <text x="310" y="75" font-family="Arial" font-size="14" text-anchor="middle">App Nubank</text>
+                    
+                    <rect x="450" y="50" width="120" height="40" fill="#E8EAF6" stroke="#333"/>
+                    <text x="510" y="75" font-family="Arial" font-size="14" text-anchor="middle">API Nubank</text>
+                    
+                    <rect x="650" y="50" width="120" height="40" fill="#E8EAF6" stroke="#333"/>
+                    <text x="710" y="75" font-family="Arial" font-size="14" text-anchor="middle">Sistema de Pagamentos</text>
+                    
+                    <!-- Linhas de vida -->
+                    <line x1="110" y1="90" x2="110" y2="450" stroke="#333" stroke-dasharray="5,5"/>
+                    <line x1="310" y1="90" x2="310" y2="450" stroke="#333" stroke-dasharray="5,5"/>
+                    <line x1="510" y1="90" x2="510" y2="450" stroke="#333" stroke-dasharray="5,5"/>
+                    <line x1="710" y1="90" x2="710" y2="450" stroke="#333" stroke-dasharray="5,5"/>
+                    
+                    <!-- Ativações -->
+                    <rect x="105" y="120" width="10" height="300" fill="#E3F2FD" stroke="#333"/>
+                    <rect x="305" y="140" width="10" height="60" fill="#E3F2FD" stroke="#333"/>
+                    <rect x="505" y="160" width="10" height="40" fill="#E3F2FD" stroke="#333"/>
+                    <rect x="705" y="180" width="10" height="20" fill="#E3F2FD" stroke="#333"/>
+                    <rect x="305" y="240" width="10" height="60" fill="#E3F2FD" stroke="#333"/>
+                    <rect x="505" y="260" width="10" height="40" fill="#E3F2FD" stroke="#333"/>
+                    
+                    <!-- Mensagens -->
+                    <!-- 1. Seleciona fatura -->
+                    <line x1="115" y1="140" x2="305" y2="140" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="305,140 295,135 295,145" fill="#333"/>
+                    <text x="210" y="130" font-family="Arial" font-size="12">1: Seleciona fatura</text>
+                    
+                    <!-- 2. Solicita dados -->
+                    <line x1="315" y1="160" x2="505" y2="160" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="505,160 495,155 495,165" fill="#333"/>
+                    <text x="410" y="150" font-family="Arial" font-size="12">2: Solicita dados</text>
+                    
+                    <!-- 3. Processa -->
+                    <line x1="515" y1="180" x2="705" y2="180" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="705,180 695,175 695,185" fill="#333"/>
+                    <text x="610" y="170" font-family="Arial" font-size="12">3: Processa</text>
+                    
+                    <!-- 4. Confirma -->
+                    <line x1="705" y1="200" x2="515" y2="200" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="515,200 525,195 525,205" fill="#333"/>
+                    <text x="610" y="220" font-family="Arial" font-size="12">4: Confirma</text>
+                    
+                    <!-- 5. Retorna -->
+                    <line x1="505" y1="220" x2="315" y2="220" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="315,220 325,215 325,225" fill="#333"/>
+                    <text x="410" y="240" font-family="Arial" font-size="12">5: Retorna</text>
+                    
+                    <!-- 6. Confirma pagamento -->
+                    <line x1="115" y1="240" x2="305" y2="240" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="305,240 295,235 295,245" fill="#333"/>
+                    <text x="210" y="230" font-family="Arial" font-size="12">6: Confirma pagamento</text>
+                    
+                    <!-- 7. Processa -->
+                    <line x1="315" y1="260" x2="505" y2="260" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="505,260 495,255 495,265" fill="#333"/>
+                    <text x="410" y="250" font-family="Arial" font-size="12">7: Processa</text>
+                    
+                    <!-- 8. Confirma -->
+                    <line x1="505" y1="300" x2="315" y2="300" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="315,300 325,295 325,305" fill="#333"/>
+                    <text x="410" y="320" font-family="Arial" font-size="12">8: Confirma</text>
+                    
+                    <!-- 9. Notifica -->
+                    <line x1="305" y1="340" x2="115" y2="340" stroke="#333" stroke-width="1.5"/>
+                    <polygon points="115,340 125,335 125,345" fill="#333"/>
+                    <text x="210" y="360" font-family="Arial" font-size="12">9: Notifica</text>
+                </svg>
+            </div>
+            <p>Este diagrama ilustra a sequência de interações entre os componentes do sistema durante o processo de pagamento de uma fatura de cartão de crédito.</p>
+        </section>
+        
+        <section id="passo8">
+            <h2>Passo 8: Recapitulando a Teoria (Modelagem de Sistemas - Conceitos)</h2>
+            <p>Na modelagem do sistema Nubank, aplicamos diversos conceitos teóricos de modelagem de sistemas:</p>
+            
+            <h3>Abstração e Encapsulamento:</h3>
+            <p>O sistema Nubank utiliza abstração para simplificar a complexidade do domínio financeiro, encapsulando detalhes técnicos complexos em interfaces simples para o usuário. Por exemplo, o processo de análise de crédito envolve algoritmos sofisticados de machine learning, mas para o usuário é apresentado apenas o resultado final (aprovado/reprovado e limite).</p>
+            
+            <h3>Modularidade e Coesão:</h3>
+            <p>A arquitetura de microserviços do Nubank demonstra alta modularidade, com serviços independentes responsáveis por funções específicas (autenticação, transações, notificações, etc.). Cada módulo possui alta coesão interna, focando em uma única responsabilidade.</p>
+            
+            <h3>Baixo Acoplamento:</h3>
+            <p>Os componentes do sistema são projetados com baixo acoplamento, comunicando-se através de APIs bem definidas. Isso permite que diferentes equipes trabalhem em paralelo e que componentes sejam substituídos ou atualizados sem afetar o sistema como um todo.</p>
+            
+            <h3>Modelagem Orientada a Domínio (DDD):</h3>
+            <p>O Nubank aplica conceitos de Domain-Driven Design, com um modelo de domínio rico que reflete o vocabulário do negócio financeiro. Entidades como Conta, Cartão e Transação são modeladas com comportamentos e regras de negócio encapsulados.</p>
+            
+            <h3>Arquitetura Orientada a Eventos:</h3>
+            <p>O sistema utiliza padrões de arquitetura orientada a eventos para garantir consistência e escalabilidade. Eventos como "TransaçãoRealizada" ou "FaturaGerada" são publicados e consumidos por diferentes serviços, permitindo processamento assíncrono e desacoplado.</p>
+        </section>
+        
+        <section id="passo9">
+            <h2>Passo 9: A Lista de Compras (Requisitos de Sistemas - RF, RNF, RN)</h2>
+            
+            <h3>Requisitos Funcionais (RF):</h3>
+            <ol>
+                <li><strong>RF01:</strong> O sistema deve permitir que novos usuários se cadastrem fornecendo dados pessoais e documentos.</li>
+                <li><strong>RF02:</strong> O sistema deve realizar análise automatizada de crédito para solicitações de cartão.</li>
+                <li><strong>RF03:</strong> O sistema deve permitir que usuários visualizem o saldo da conta e histórico de transações.</li>
+                <li><strong>RF04:</strong> O sistema deve permitir transferências entre contas Nubank e para outros bancos.</li>
+                <li><strong>RF05:</strong> O sistema deve gerar faturas mensais de cartão de crédito com todas as transações do período.</li>
+                <li><strong>RF06:</strong> O sistema deve permitir o pagamento de faturas via boleto ou débito em conta.</li>
+                <li><strong>RF07:</strong> O sistema deve permitir que usuários bloqueiem e desbloqueiem seus cartões.</li>
+                <li><strong>RF08:</strong> O sistema deve notificar usuários sobre transações realizadas em tempo real.</li>
+                <li><strong>RF09:</strong> O sistema deve permitir a contestação de transações não reconhecidas.</li>
+                <li><strong>RF10:</strong> O sistema deve oferecer suporte ao cliente via chat no aplicativo.</li>
+                <li><strong>RF11:</strong> O sistema deve permitir a definição de limites para transações específicas.</li>
+                <li><strong>RF12:</strong> O sistema deve oferecer funcionalidades de investimento em renda fixa.</li>
+            </ol>
+            
+            <h3>Requisitos Não Funcionais (RNF):</h3>
+            <ol>
+                <li><strong>RNF01 (Desempenho):</strong> O sistema deve processar autorizações de transações em menos de 2 segundos.</li>
+                <li><strong>RNF02 (Disponibilidade):</strong> O sistema deve estar disponível 99,99% do tempo (downtime máximo de 52 minutos por ano).</li>
+                <li><strong>RNF03 (Escalabilidade):</strong> O sistema deve suportar picos de 10.000 transações por segundo.</li>
+                <li><strong>RNF04 (Segurança):</strong> Todas as comunicações devem ser criptografadas usando TLS 1.3 ou superior.</li>
+                <li><strong>RNF05 (Segurança):</strong> O sistema deve implementar autenticação de dois fatores para operações sensíveis.</li>
+                <li><strong>RNF06 (Usabilidade):</strong> Usuários devem conseguir realizar tarefas comuns em no máximo 3 toques na tela.</li>
+                <li><strong>RNF07 (Compatibilidade):</strong> O aplicativo deve funcionar em iOS 12+ e Android 7.0+.</li>
+                <li><strong>RNF08 (Manutenibilidade):</strong> Novas versões do aplicativo devem ser lançadas sem interrupção do serviço.</li>
+                <li><strong>RNF09 (Conformidade):</strong> O sistema deve atender às regulamentações do Banco Central e LGPD.</li>
+                <li><strong>RNF10 (Recuperação):</strong> Em caso de falha, o sistema deve se recuperar em menos de 5 minutos.</li>
+            </ol>
+        </section>
+        
+        <section id="passo10">
+            <h2>Passo 10: As Leis do Jogo em Detalhe (Regra de Negócio)</h2>
+            
+            <h3>Regras de Negócio (RN):</h3>
+            <ol>
+                <li><strong>RN01 - Elegibilidade para Cartão:</strong> Clientes devem ter mais de 18 anos, CPF válido e sem restrições graves nos bureaus de crédito para solicitar cartão de crédito.</li>
+                <li><strong>RN02 - Definição de Limite de Crédito:</strong> O limite inicial de crédito é calculado com base no score de crédito, renda declarada e histórico financeiro do cliente, não podendo exceder 70% da renda mensal comprovada.</li>
+                <li><strong>RN03 - Aumento de Limite:</strong> Aumentos automáticos de limite são concedidos após 6 meses de bom comportamento de pagamento, limitados a 30% do limite atual por aumento.</li>
+                <li><strong>RN04 - Fechamento de Fatura:</strong> As faturas são fechadas no dia escolhido pelo cliente (1 a 28) e têm vencimento 10 dias após o fechamento.</li>
+                <li><strong>RN05 - Juros Rotativos:</strong> Pagamentos parciais da fatura incorrem em juros de 14% ao mês sobre o valor não pago, calculados diariamente.</li>
+                <li><strong>RN06 - Parcelamento de Fatura:</strong> Faturas podem ser parceladas em até 12 vezes, com juros de 7,75% ao mês sobre o valor parcelado.</li>
+                <li><strong>RN07 - Bloqueio por Inadimplência:</strong> Cartões são bloqueados automaticamente após 5 dias de atraso no pagamento da fatura.</li>
+                <li><strong>RN08 - Detecção de Fraude:</strong> Transações que fogem ao padrão de uso do cliente (localização incomum, valor atípico, múltiplas transações em curto período) são bloqueadas preventivamente até confirmação do cliente.</li>
+                <li><strong>RN09 - Contestação de Compras:</strong> Clientes têm até 90 dias após a data da transação para contestar compras não reconhecidas.</li>
+                <li><strong>RN10 - Cashback:</strong> Compras elegíveis recebem 1% de cashback, creditado na conta do cliente no fechamento da fatura.</li>
+                <li><strong>RN11 - Limite de Saques:</strong> Saques com cartão de crédito são limitados a 10% do limite total do cartão e incorrem em juros desde o dia da operação.</li>
+                <li><strong>RN12 - Cancelamento de Conta:</strong> Contas só podem ser canceladas após quitação de todos os débitos pendentes e devolução do cartão físico ou declaração de destruição.</li>
+                <li><strong>RN13 - Rendimento da Conta:</strong> Saldos em conta rendem 100% do CDI, com rendimentos calculados diariamente e creditados mensalmente.</li>
+                <li><strong>RN14 - Limites de Transferência:</strong> Transferências via PIX têm limite diário definido pelo cliente, não podendo exceder R$ 100.000,00 por dia sem verificação adicional de segurança.</li>
+                <li><strong>RN15 - Inatividade:</strong> Contas sem movimentação por mais de 12 meses são marcadas como inativas e notificadas. Após 24 meses de inatividade, podem ser encerradas automaticamente.</li>
+            </ol>
+        </section>
+    </main>
+    
+    <footer>
+        <p>Raio-X do Sistema Nubank: Da Modelagem à Apresentação Web</p>
+        <p>Desenvolvido como parte do estudo de Modelagem de Sistemas</p>
+        <p>&copy; 2025</p>
+    </footer>
+</body>
+</html>
